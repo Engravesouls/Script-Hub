@@ -1,0 +1,317 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local username = player.Name
+
+if game.CoreGui:FindFirstChild("CustomGUI") then
+    game.CoreGui.CustomGUI:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CustomGUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 580, 0, 420)
+MainFrame.Position = UDim2.new(0.5, -290, 0.5, -210)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+
+-- Navbar
+local NavBar = Instance.new("Frame")
+NavBar.Size = UDim2.new(0, 52, 1, 0)
+NavBar.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+NavBar.BorderSizePixel = 0
+NavBar.Parent = MainFrame
+Instance.new("UICorner", NavBar).CornerRadius = UDim.new(0, 12)
+
+local NavFix = Instance.new("Frame")
+NavFix.Size = UDim2.new(0, 12, 1, 0)
+NavFix.Position = UDim2.new(1, -12, 0, 0)
+NavFix.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+NavFix.BorderSizePixel = 0
+NavFix.Parent = NavBar
+
+local HomeBtn = Instance.new("TextButton")
+HomeBtn.Size = UDim2.new(0, 36, 0, 36)
+HomeBtn.Position = UDim2.new(0.5, -18, 0, 14)
+HomeBtn.BackgroundColor3 = Color3.fromRGB(60, 100, 255)
+HomeBtn.BorderSizePixel = 0
+HomeBtn.Text = "⌂"
+HomeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+HomeBtn.TextSize = 22
+HomeBtn.Font = Enum.Font.GothamBold
+HomeBtn.Parent = NavBar
+Instance.new("UICorner", HomeBtn).CornerRadius = UDim.new(0, 8)
+
+-- Content
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, -52, 1, 0)
+ContentFrame.Position = UDim2.new(0, 52, 0, 0)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
+
+-- Topbar (do przeciagania)
+local TopBar = Instance.new("Frame")
+TopBar.Size = UDim2.new(1, 0, 0, 48)
+TopBar.BackgroundTransparency = 1
+TopBar.Parent = ContentFrame
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(0, 200, 0, 30)
+TitleLabel.Position = UDim2.new(0, 12, 0, 9)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "Script Hub"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 18
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Parent = TopBar
+
+-- Trzy kropki
+local DotsFrame = Instance.new("Frame")
+DotsFrame.Size = UDim2.new(0, 72, 0, 20)
+DotsFrame.Position = UDim2.new(1, -82, 0, 14)
+DotsFrame.BackgroundTransparency = 1
+DotsFrame.Parent = TopBar
+
+local dotData = {
+    {Color3.fromRGB(255, 95, 87), "close"},
+    {Color3.fromRGB(255, 189, 46), "minimize"},
+    {Color3.fromRGB(39, 201, 63), "none"},
+}
+local dots = {}
+for i, d in ipairs(dotData) do
+    local dot = Instance.new("TextButton")
+    dot.Size = UDim2.new(0, 14, 0, 14)
+    dot.Position = UDim2.new(0, (i-1)*22, 0.5, -7)
+    dot.BackgroundColor3 = d[1]
+    dot.BorderSizePixel = 0
+    dot.Text = ""
+    dot.Parent = DotsFrame
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+    dots[d[2]] = dot
+    dot.MouseEnter:Connect(function()
+        TweenService:Create(dot, TweenInfo.new(0.15), {Size = UDim2.new(0,16,0,16), Position = UDim2.new(0,(i-1)*22-1,0.5,-8)}):Play()
+    end)
+    dot.MouseLeave:Connect(function()
+        TweenService:Create(dot, TweenInfo.new(0.15), {Size = UDim2.new(0,14,0,14), Position = UDim2.new(0,(i-1)*22,0.5,-7)}):Play()
+    end)
+end
+
+-- Czerwona - zamknij
+dots["close"].MouseButton1Click:Connect(function()
+    local t = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+        Size = UDim2.new(0,0,0,0),
+        Position = UDim2.new(0.5,0,0.5,0)
+    })
+    t:Play()
+    t.Completed:Connect(function() ScreenGui:Destroy() end)
+end)
+
+-- Zolta - minimalizuj
+local minimized = false
+dots["minimize"].MouseButton1Click:Connect(function()
+    if not minimized then
+        minimized = true
+        TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 580, 0, 48)
+        }):Play()
+    end
+end)
+
+-- K - przywroc
+UserInputService.InputBegan:Connect(function(input, gp)
+    if input.KeyCode == Enum.KeyCode.K and not gp and minimized then
+        minimized = false
+        TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 580, 0, 420)
+        }):Play()
+    end
+end)
+
+-- Separator
+local Sep = Instance.new("Frame")
+Sep.Size = UDim2.new(1, -24, 0, 1)
+Sep.Position = UDim2.new(0, 12, 0, 48)
+Sep.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+Sep.BorderSizePixel = 0
+Sep.Parent = ContentFrame
+
+-- Welcome
+local WelcomeLabel = Instance.new("TextLabel")
+WelcomeLabel.Size = UDim2.new(1, -24, 0, 24)
+WelcomeLabel.Position = UDim2.new(0, 12, 0, 58)
+WelcomeLabel.BackgroundTransparency = 1
+WelcomeLabel.Text = "Welcome back, " .. username .. "!"
+WelcomeLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+WelcomeLabel.TextSize = 14
+WelcomeLabel.Font = Enum.Font.Gotham
+WelcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
+WelcomeLabel.Parent = ContentFrame
+
+-- Script Manager label
+local SMLabel = Instance.new("TextLabel")
+SMLabel.Size = UDim2.new(1, -24, 0, 20)
+SMLabel.Position = UDim2.new(0, 12, 0, 88)
+SMLabel.BackgroundTransparency = 1
+SMLabel.Text = "Script Manager"
+SMLabel.TextColor3 = Color3.fromRGB(130, 130, 160)
+SMLabel.TextSize = 12
+SMLabel.Font = Enum.Font.GothamBold
+SMLabel.TextXAlignment = Enum.TextXAlignment.Left
+SMLabel.Parent = ContentFrame
+
+-- Scroll
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -24, 1, -120)
+ScrollFrame.Position = UDim2.new(0, 12, 0, 112)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 100, 255)
+ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollFrame.Parent = ContentFrame
+
+local ListLayout = Instance.new("UIListLayout")
+ListLayout.Padding = UDim.new(0, 8)
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ListLayout.Parent = ScrollFrame
+
+-- =============================================
+-- SKRYPTY - TUTAJ WKLEJASZ SWOJE SKRYPTY
+-- =============================================
+local scripts = {
+    {
+        name = "Pet spawner ",           -- <- zmien nazwe
+        desc = "If script does not work please switch your executor",    -- <- zmien opis
+        action = function()
+            loadstring(game:HttpGet("https://gist.githubusercontent.com/AdoresAtrick/814ef9c26526cac7f24c09fbf295b286/raw/85fefd17d9feb65a97bd4a7e69c9512fb5038575/SpawnerForBoost"))()
+            print("Pet spawner executed")
+        end
+    },
+    {
+        name = "Fake trade",           -- <- zmien nazwe
+        desc = "If script does not work please switch your executor",    -- <- zmien opis
+        action = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Engravesouls/Adoptme/50904419a4fff2c68124a185f31e06b0d5e6a8ca/adopt%20me%20script"))()
+            print("Fake trade script executed")
+        end
+    },
+    {
+        name = "Auto Farm",           -- <- zmien nazwe
+        desc = "If script does not work please switch your executor",    -- <- zmien opis
+        action = function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/FBScripts/DuskShineADM/refs/heads/main/FVersion",true))()
+            print("Auto farm executed")
+        end
+    },
+}
+-- =============================================
+
+-- Generuj karty
+for i, s in ipairs(scripts) do
+    local Card = Instance.new("Frame")
+    Card.Size = UDim2.new(1, -8, 0, 72)
+    Card.BackgroundColor3 = Color3.fromRGB(24, 24, 34)
+    Card.BorderSizePixel = 0
+    Card.LayoutOrder = i
+    Card.Parent = ScrollFrame
+    Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 10)
+
+    Card.MouseEnter:Connect(function()
+        TweenService:Create(Card, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 44)}):Play()
+    end)
+    Card.MouseLeave:Connect(function()
+        TweenService:Create(Card, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(24, 24, 34)}):Play()
+    end)
+
+    local Name = Instance.new("TextLabel")
+    Name.Size = UDim2.new(1, -110, 0, 24)
+    Name.Position = UDim2.new(0, 14, 0, 10)
+    Name.BackgroundTransparency = 1
+    Name.Text = s.name
+    Name.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Name.TextSize = 14
+    Name.Font = Enum.Font.GothamBold
+    Name.TextXAlignment = Enum.TextXAlignment.Left
+    Name.Parent = Card
+
+    local Desc = Instance.new("TextLabel")
+    Desc.Size = UDim2.new(1, -110, 0, 30)
+    Desc.Position = UDim2.new(0, 14, 0, 34)
+    Desc.BackgroundTransparency = 1
+    Desc.Text = s.desc
+    Desc.TextColor3 = Color3.fromRGB(130, 130, 155)
+    Desc.TextSize = 11
+    Desc.Font = Enum.Font.Gotham
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
+    Desc.TextWrapped = true
+    Desc.Parent = Card
+
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(0, 84, 0, 32)
+    Btn.Position = UDim2.new(1, -96, 0.5, -16)
+    Btn.BackgroundColor3 = Color3.fromRGB(60, 100, 255)
+    Btn.BorderSizePixel = 0
+    Btn.Text = "Execute"
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Btn.TextSize = 13
+    Btn.Font = Enum.Font.GothamBold
+    Btn.Parent = Card
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 8)
+
+    Btn.MouseEnter:Connect(function()
+        TweenService:Create(Btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(80, 120, 255)}):Play()
+    end)
+    Btn.MouseLeave:Connect(function()
+        TweenService:Create(Btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 100, 255)}):Play()
+    end)
+
+    Btn.MouseButton1Click:Connect(function()
+        -- animacja klikniecia
+        TweenService:Create(Btn, TweenInfo.new(0.1), {Size = UDim2.new(0,78,0,28), Position = UDim2.new(1,-93,0.5,-14)}):Play()
+        task.delay(0.1, function()
+            TweenService:Create(Btn, TweenInfo.new(0.15, Enum.EasingStyle.Back), {Size = UDim2.new(0,84,0,32), Position = UDim2.new(1,-96,0.5,-16)}):Play()
+        end)
+        task.delay(0.05, s.action)
+    end)
+end
+
+-- Przeciaganie
+local dragging, dragStart, startPos = false, nil, nil
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local d = input.Position - dragStart
+        TweenService:Create(MainFrame, TweenInfo.new(0.05, Enum.EasingStyle.Linear), {
+            Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
+        }):Play()
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+
+-- Animacja otwarcia
+MainFrame.Size = UDim2.new(0,0,0,0)
+MainFrame.Position = UDim2.new(0.5,0,0.5,0)
+TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = UDim2.new(0,580,0,420),
+    Position = UDim2.new(0.5,-290,0.5,-210)
+}):Play()
+
+print("script hub made by engravesouls on discord")
